@@ -1,0 +1,7 @@
+name: clenv
+dependencies:
+  - numpy
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - pylint
