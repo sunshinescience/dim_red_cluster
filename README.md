@@ -11,3 +11,5 @@ conda env update -f environment.yml
 conda activate clenv
 # Deactivate the environment
 conda deactivate
+
+conda remove --name clenv --all
