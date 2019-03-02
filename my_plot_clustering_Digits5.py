@@ -336,7 +336,6 @@ if 1:
     ax2 = axarr[1]
     ax2.scatter(iso_result[:,0], iso_result[:,1], c=color, marker='.')
     ax2.set_title('K-means clustering on isomap reduced data')
-    plt.colorbar(ticks=range(10))
     plt.tight_layout()
     plt.show()
 
