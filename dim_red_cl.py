@@ -51,7 +51,11 @@ print ('Shape: ', digits.data.shape) # Number of samples (1797) in the dataset a
 n_digits = len(np.unique(digits.target))
 labels = digits.target
 
+<<<<<<< HEAD
 # print (digits.images[0].shape) # Checking if an example image (0) is grayscale. If it is grayscale, the tuple returned contains only the number of rows and columns
+=======
+# print (digits.images[0].shape) # Checking if an example image (0) is grayscale. If it is, the tuple returned contains only the number of rows and columns
+>>>>>>> e34db7d239b14b43dd4c1c9d4a6c6f1f296fc3c4
 
 # Note: to display a figure, type 1 instead of 0 in the corresponding if statement in the relevant figures below
 
@@ -179,6 +183,7 @@ if 1:
     plt.colorbar()
     plt.show() 
     # plt.savefig('pca_digits.png', dpi=150) 
+<<<<<<< HEAD
 
 # The principal components are assigned to the percnt variable below and PCA is done on the non-standardized data
 percnt = 0.50 # Input the percentage of variance (e.g., 0.50 would be 50% of the variance)
@@ -216,6 +221,45 @@ if 0:
     plt.show() 
     # plt.savefig('digits0_9_pca.png', dpi=150) 
 
+=======
+
+# The principal components are assigned to the percnt variable below and PCA is done on the non-standardized data
+percnt = 0.50 # Input the percentage of variance (e.g., 0.50 would be 50% of the variance)
+pca3 = PCA(n_components=percnt).fit(digits.data) # Preserving 50% of the variance by setting the number of components to 0.50 and using the unstandardized data (digits.data)
+pca3_result = pca3.transform(digits.data)
+# Transform the PCA reduced data back to its original space.
+inversed_pca = pca3.inverse_transform(pca3_result)  # Use the inverse of the transform to reconstruct the reduced digits
+
+if percnt < 1:
+    percnt_var = round(int(percnt*100))
+    print ('{:0d}% of the variance is contained within {} principal components'.format(percnt_var, pca3.n_components_))
+
+# Figure of original images, as assigned to the variable called inversed_lst
+inversed_lst = range(0, 10)
+if 0:
+    fig = plt.figure(figsize=(10,2))
+    plt_index = 0
+    for i in inversed_lst:
+        plt_index = plt_index + 1
+        ax = fig.add_subplot(1, 10, plt_index)
+        ax.imshow(digits.images[i], cmap=plt.cm.gray_r, interpolation='nearest')
+    plt.tight_layout()
+    plt.show() 
+    # plt.savefig('digits0_9_original.png', dpi=150) 
+
+# Figure of images that have undergone PCA reduction, as assigned to the variable called inversed_lst. The inverse transform is plotted here
+if 0:
+    fig = plt.figure(figsize=(10,2))
+    plt_index = 0
+    for i in inversed_lst:
+        plt_index = plt_index + 1
+        ax = fig.add_subplot(1, 10, plt_index)
+        ax.imshow(inversed_pca[i].reshape(8, 8), cmap=plt.cm.gray_r, interpolation='nearest')
+    plt.tight_layout()
+    plt.show() 
+    # plt.savefig('digits0_9_pca.png', dpi=150) 
+
+>>>>>>> e34db7d239b14b43dd4c1c9d4a6c6f1f296fc3c4
 # Figure of the above two plots combined into one in order to compare the original images vs corresponding PCA reduced images
 
 
@@ -658,3 +702,4 @@ if 0:
     ax2.set_title('Affinity propogation clustering on t-SNE reduced data')
     plt.tight_layout()
     plt.show()
+
