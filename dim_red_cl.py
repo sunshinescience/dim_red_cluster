@@ -37,6 +37,9 @@ from sklearn.cluster import SpectralClustering
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import AffinityPropagation
 
+import figures
+
+
 # Load the digits dataset
 digits = load_digits()
 
@@ -53,83 +56,27 @@ labels = digits.target
 
 # print (digits.images[0].shape) # Checking if an example image (0) is grayscale. If it is grayscale, the tuple returned contains only the number of rows and columns 
 
-dig = 0 # Digit number. Change this digit number in order to get a list printed of the sample numbers that correspond to this specified digit
-# print ('Samples that are {}:'.format(dig), np.where(labels == dig)[0]) # Prints a list of sample numbers that are the specified digit
+dig = 1 # Digit number. Change this digit number in order to get a list printed of the sample numbers that correspond to this specified digit
+print ('Samples that are {}:'.format(dig), np.where(labels == dig)[0]) # Prints a list of sample numbers that are the specified digit
 
 # Note: to display a figure, type 1 instead of 0 in the corresponding if statement in the relevant figures below
 
 # ##############
 # Visualize images from the dataset 
 
-# Visualize a single image from the dataset. 
-sample_n = 32 # Input number for which sample to visualize
-if 0: 
+# Plot of a single image from the dataset. 
+sample_n = 138 # Input number for which sample to visualize
+if 1: 
     plt.figure(0, figsize=(3, 3))
     plt.imshow(digits.images[sample_n], cmap=plt.cm.gray_r, interpolation='nearest')
     plt.show()
-    print ('Digit number:', labels[sample_n]) # Digit number
+    print ('Digit number: ', labels[sample_n]) # Digit number
     print ('Sample number: ', sample_n) # Sample number
     plt.show()
     # plt.savefig('example_digit_{}.png'.format(labels[sample_n]), dpi=150) 
 
-# List to use in the below code that provides four example digits for each digit in a figure
-sample_lst = [] # A list of lists. Each list within contains four sample numbers of a single digit, and it goes from digit 0 (the first list within the list of lists) to digit 9 (the last list)
-for i in range(10):
-    sample_nums = np.where(labels == i)[0][0:4] # indexes (0:4) into an array of sample numbers that are a specified digit (the digit is written as i in the loop)
-    sample_nums = sample_nums.tolist() # Convert the array called sample_nums to a list with the same items
-    sample_lst.append(sample_nums) 
-# Plot of four examples of each specific digit, from each of the 10 digits (0 through 9)
-if 1:
-    fig = plt.figure(figsize=(10,6))
-    plt_index = 0
-    for i in range(0,10):
-        for j in sample_lst[i]:
-            plt_index = plt_index + 1
-            ax = fig.add_subplot(5, 8, plt_index)
-            ax.imshow(digits.images[j], cmap=plt.cm.gray_r, interpolation='nearest')
-    # plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9, hspace = 0.8)
-    plt.tight_layout()
-    plt.show()  
-    # plt.savefig('digits_each_4.png', dpi=150) 
-
-index = 8 # The number of plots to generate on the figures below. 
-fig_sz = (7,8) # The corresponding figure size. 
-
-n_rand = []
-for i in range(index):
-    n_rand.append(np.random.randint(0, n_samples))
-
-# Plot of eight random digits from the dataset
-if 1:
-    fig = plt.figure(figsize=fig_sz)
-    plt_index = 0
-    for i in n_rand:
-        plt_index = plt_index + 1
-        ax = fig.add_subplot((index-(index/2)), 2, plt_index)
-        ax.imshow(digits.images[i], cmap=plt.cm.gray_r, interpolation='nearest')
-    plt.tight_layout()
-    # plt.show()
-    plt.savefig('8rand_digits.png', dpi=150) 
-
-n_rand_large = []
-n = 36 # Number of plots of the digits to make
-for i in range(n):
-    n_rand_large.append(np.random.randint(0, n_samples))
-
-# Plot of many random digits from the dataset
-if 0:
-    fig = plt.figure(figsize=(8,9))
-    plt_index = 0
-    for i in n_rand_large:
-        plt_index = plt_index + 1
-        ax = fig.add_subplot(6, 6, plt_index)
-        ax.imshow(digits.images[i], cmap=plt.cm.gray_r, interpolation='nearest')
-    plt.tight_layout()
-    # plt.show()
-    # plt.savefig('digits_36random.png', dpi=150)
-
 # Plot of ten example digits (from 0 to 9)
-if 1:
+if 0:
     fig = plt.figure(figsize=(10,5))
     plt_index = 0
     for i in range(10):
@@ -139,6 +86,29 @@ if 1:
     plt.tight_layout()
     plt.show()  
     # plt.savefig('digits_10example.png', dpi=150) 
+
+# List to use in the below code that provides four example digits for each digit in a figure
+sample_lst = [] # A list of lists. Each list within contains four sample numbers of a single digit, and it goes from digit 0 (the first list within the list of lists) to digit 9 (the last list)
+for i in range(10):
+    sample_nums = np.where(labels == i)[0][0:4] # Indexes (0:4) into an array of sample numbers that are a specified digit (the digit is written as i in the loop)
+    sample_nums = sample_nums.tolist() # Convert the array called sample_nums to a list with the same items
+    sample_lst.append(sample_nums) 
+# Plot of four examples of each specific digit, from each of the 10 digits (0 through 9)
+if 0:
+    fig = plt.figure(figsize=(10,6))
+    plt_index = 0
+    for i in range(0,10):
+        for j in sample_lst[i]:
+            plt_index = plt_index + 1
+            ax = fig.add_subplot(5, 8, plt_index)
+            ax.imshow(digits.images[j], cmap=plt.cm.gray_r, interpolation='nearest')
+            ax.set_yticklabels([]) # Turn off y tick labels
+            ax.set_xticklabels([]) # Turn off x tick labels
+            ax.set_yticks([]) # Turn off y ticks
+            ax.set_xticks([]) # Turn off x ticks
+    plt.tight_layout()
+    # plt.show()  
+    plt.savefig('digits_each_4.png', dpi=150) 
 
 # #############################################################################
 # PCA-reduced data
@@ -168,8 +138,8 @@ print ('The first two components account for {:.0f}% of the variation in the ent
 # One can estimate how many components are needed to describe the data by assessing the 
 # cumulative explained variance ratio as a function of the number of components, see the plot below
 if 0:
-    pca4 = PCA().fit(digits.data)
-    plt.plot(np.cumsum(pca4.explained_variance_ratio_))
+    pca4 = PCA().fit(digits.data) # Conducting PCA without specifying a number of
+    plt.plot(np.cumsum(pca4.explained_variance_ratio_)) # The cumulative sum of the percentage of variance explained by all of the components
     plt.xlabel('Number of components')
     plt.ylabel('Cumulative explained variance')
     plt.title('Number of components vs. retained variance')
@@ -190,7 +160,7 @@ if 0:
     # plt.savefig('pca_standardized_digits.png', dpi=150) 
 
 # Plot of PCA reduced data with a colorbar. This uses the original data, (i.e., this data is not standardized)
-if 1:
+if 0:
     plt.scatter(pca2_result[:, 0], pca2_result[:, 1],
                 c=digits.target, edgecolor='none', alpha=0.5,
                 cmap=plt.cm.get_cmap('tab10', 10))
@@ -200,30 +170,11 @@ if 1:
     plt.show() 
     # plt.savefig('pca_digits.png', dpi=150) 
 
+show_images_figs = False
 # Figure of original images, as assigned to the variable called inversed_lst
-inversed_lst = range(0, 10)
 if 0:
-    fig = plt.figure(figsize=(10,2))
-    plt_index = 0
-    for i in inversed_lst:
-        plt_index = plt_index + 1
-        ax = fig.add_subplot(1, 10, plt_index)
-        ax.imshow(digits.images[i], cmap=plt.cm.gray_r, interpolation='nearest')
-    plt.tight_layout()
-    plt.show() 
-    # plt.savefig('digits0_9_original.png', dpi=150) 
-
-# Figure of images that have undergone PCA reduction, as assigned to the variable called inversed_lst. The inverse transform is plotted here
-if 0:
-    fig = plt.figure(figsize=(10,2))
-    plt_index = 0
-    for i in inversed_lst:
-        plt_index = plt_index + 1
-        ax = fig.add_subplot(1, 10, plt_index)
-        ax.imshow(pca_inversed[i].reshape(8, 8), cmap=plt.cm.gray_r, interpolation='nearest')
-    plt.tight_layout()
-    plt.show() 
-    # plt.savefig('digits0_9_pca.png', dpi=150) 
+    figures.plot_images(digits.images, save_fname='digits0_9_original.png', show=show_images_figs)
+    figures.plot_images(pca_inversed, reshape=(8, 8), save_fname='digits0_9_pca_inversed.png.png', show=show_images_figs)
 
 # Figure of the above two plots combined into one in order to compare the original images vs corresponding PCA reduced images
 
@@ -412,7 +363,7 @@ if 1:
     # Plot of truncated SVD reduced data 
     ax1 = axarr[0]
     ax1.scatter(svd_result[:,0], svd_result[:,1], c='k', marker='.')
-    ax1.set_title('truncated SVD reduced data')
+    ax1.set_title('Truncated SVD reduced data')
 
     # Plot of K-means clustering on truncated SVD reduced data
     ax2 = axarr[1]
@@ -447,7 +398,6 @@ if 1:
     plt.clim(-0.5, 9.5)
     plt.show() 
 
-
 '''# # # # 
 # Trying to plot thumbnails at the locations of the projections
 from matplotlib import offsetbox
@@ -475,7 +425,6 @@ model = Isomap(n_neighbors=5, n_components=2, eigen_solver='dense')
 plot_components(data, model, images=data.reshape(-1, 8, 8),
                 ax=ax, thumb_frac=0.05, cmap='gray_r')  
 
-# # # # 
 '''
 
 # Plot an elbow curve to select the optimal number of clusters for k-means clustering
@@ -494,14 +443,14 @@ plt.ylabel('Sum of squared distances')
 plt.plot(list(sse.keys()), list(sse.values()))
 plt.show()
 
-# When we make the plot, we see that the line levels off approximately after about ___ clusters, implying that 
+# When the plot is made, we can approximately see that the line levels off approximately after about ___ clusters, implying that 
 # the addition of more clusters may not explain much more of the variance 
 # To determine the bend in the knee, see https://github.com/arvkevi/kneed and https://raghavan.usc.edu/papers/kneedle-simplex11.pdf
 
 # #########
-# Visualize random digits from a select cluster
+# Visualize random digits from a select k-means cluster using t-SNE reduced data
 
-clust_num = 1 # The cluster number to select
+clust_num = 3 # The cluster number to select
 indexes = 8 # The number of plots to generate on the figure. 
 fig_size = (7,8)
 
@@ -512,8 +461,11 @@ def cluster_indices(clust_num, labels_array): #numpy
     """
     return np.where(labels_array == clust_num)[0]
 
-cluster_data = cluster_indices(clust_num, k_t_sne.labels_)
+cluster_data = cluster_indices(clust_num, k_t_sne.labels_) # A list of sample numbers from the chosen cluster number
 print ('Samples from cluster {}:'.format(clust_num), cluster_data)
+print ('Digits from cluster {}:'.format(clust_num), labels[cluster_data])
+
+print (("where:"), np.where(k_t_sne.labels_ == 6)[0]) # This is telling us the sample number where the digit 5 is
 
 cluster_data_random = []
 for i in range(indexes):
@@ -533,6 +485,56 @@ if 1:
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.show()
     # plt.savefig('handwritten_digits_from_select_cluster.png', dpi=150)
+
+
+# cluster_data should be equal to one specific digit (within dig_lst)
+cl_dig = cluster_data[0] # The example digit, in which the whole cluster should be
+dig_lst = np.where(labels == cl_dig)[0] # A list of the sample numbers of the digit (variable called cl_dig)
+
+'''for i in range(10):
+    clust_n == i
+    cluster_data = cluster_indices(clust_n, k_t_sne.labels_) '''
+
+'''
+def digit_matches(cluster_data, data):
+    """
+    This checks whether or not the ________
+    It returns whether or not these two match. 
+    """
+    cl_dig = cluster_data[0]
+    dig_lst = np.where(digits.target == cl_dig)[0]
+    matches = dig_lst == cluster_data
+    if matches == True:
+        print ('Match!')
+    else:
+        print ('No match')
+
+dig_match_ans = digit_matches(cluster_data, data)
+print (dig_match_ans)
+'''
+
+'''def digit_matches_answer(dig_match_ans):
+    if dig_match_ans == True:
+        print ('The cluster digits are all the same digit', cluster_data)
+    else: 
+        print ('The cluster digits are not all the same digit', np.where(dig_lst != cluster_data)[0])
+digit_matches_answer(dig_match_ans)'''
+
+print ('label for cluster_data 0: ', labels[cluster_data[0]])
+
+dig_num = []
+for i in cluster_data:
+    dig_num.append(labels[i])
+print ('Digit numbers from cluster {}'.format(clust_num), dig_num)
+print ('Example digit from cluster{}'.format(clust_num), cluster_data[0]) # The example digit, in which the whole cluster should be
+cl_dig_no_match = []
+for i in dig_num:
+    n = i + 1
+    if i == n:
+        continue
+    else:
+        cl_dig_no_match.append(n)
+# print (cl_dig_no_match) 
 
 # #############################################################################
 # Mean-shift clustering
