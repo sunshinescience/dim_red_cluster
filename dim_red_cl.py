@@ -45,18 +45,21 @@ data = scale(digits.data)
 
 # This data from scikit-learn is stored in the .data member, which is a (n_samples, n_features) array
 n_samples, n_features = data.shape
-print ('Shape: ', digits.data.shape) # Number of samples (1797) in the dataset and number of features (64)
+# print ('Shape: ', digits.data.shape) # Number of samples (1797) and number of features (64)
 
 # The class of each observation is stored in the .target attribute of the dataset 
 n_digits = len(np.unique(digits.target))
 labels = digits.target
 
-# print (digits.images[0].shape) # Checking if an example image (0) is grayscale. If it is grayscale, the tuple returned contains only the number of rows and columns
+# print (digits.images[0].shape) # Checking if an example image (0) is grayscale. If it is grayscale, the tuple returned contains only the number of rows and columns 
+
+dig = 0 # Digit number. Change this digit number in order to get a list printed of the sample numbers that correspond to this specified digit
+# print ('Samples that are {}:'.format(dig), np.where(labels == dig)[0]) # Prints a list of sample numbers that are the specified digit
 
 # Note: to display a figure, type 1 instead of 0 in the corresponding if statement in the relevant figures below
 
 # ##############
-# Visualize images from the dataset. 
+# Visualize images from the dataset 
 
 # Visualize a single image from the dataset. 
 sample_n = 32 # Input number for which sample to visualize
@@ -75,11 +78,6 @@ for i in range(10):
     sample_nums = np.where(labels == i)[0][0:4] # indexes (0:4) into an array of sample numbers that are a specified digit (the digit is written as i in the loop)
     sample_nums = sample_nums.tolist() # Convert the array called sample_nums to a list with the same items
     sample_lst.append(sample_nums) 
-# print (sample_lst)
-
-dig = 0 # Digit number. Change this digit number in order to get a list printed of the sample numbers that correspond to this specified digit
-# print ('Samples that are {}:'.format(dig), np.where(labels == dig)[0]) # Prints a list of sample numbers that are the specified digit
-
 # Plot of four examples of each specific digit, from each of the 10 digits (0 through 9)
 if 1:
     fig = plt.figure(figsize=(10,6))
@@ -100,10 +98,9 @@ fig_sz = (7,8) # The corresponding figure size.
 n_rand = []
 for i in range(index):
     n_rand.append(np.random.randint(0, n_samples))
-print (n_rand)
 
 # Plot of eight random digits from the dataset
-if 0:
+if 1:
     fig = plt.figure(figsize=fig_sz)
     plt_index = 0
     for i in n_rand:
@@ -112,12 +109,12 @@ if 0:
         ax.imshow(digits.images[i], cmap=plt.cm.gray_r, interpolation='nearest')
     plt.tight_layout()
     # plt.show()
+    plt.savefig('8rand_digits.png', dpi=150) 
 
 n_rand_large = []
 n = 36 # Number of plots of the digits to make
 for i in range(n):
     n_rand_large.append(np.random.randint(0, n_samples))
-print (n_rand_large)
 
 # Plot of many random digits from the dataset
 if 0:
@@ -139,7 +136,6 @@ if 1:
         plt_index = plt_index + 1
         ax = fig.add_subplot(2, 5, plt_index)
         ax.imshow(digits.images[i], cmap=plt.cm.gray_r, interpolation='nearest')
-    # plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9, hspace = 0.8)
     plt.tight_layout()
     plt.show()  
     # plt.savefig('digits_10example.png', dpi=150) 
@@ -147,17 +143,41 @@ if 1:
 # #############################################################################
 # PCA-reduced data
 
-# From the original 64 dimensions, the first two principal components are generated below on the standardized data
+# The first two principal components are generated below on the standardized data, from the original 64 dimensions 
 pca = PCA(n_components=2)
 pca_result = pca.fit_transform(data) # now we have the reduced feature set
-print ('Explained variation per principal component: {}'.format(pca.explained_variance_ratio_)) # Percentage of variance explained by each dimension
-print ('The first two components account for {:.0f}% of the variation in the entire dataset'.format((pca.explained_variance_ratio_[0] + pca.explained_variance_ratio_[1])*100))
-# print ('PCA reduced shape: ', pca_result.shape) # Number of samples (1797) in the dataset and PCA reduced number of features
+# print ('PCA reduced shape: ', pca_result.shape) # Number of samples (1797) in the dataset and PCA reduced number of feature
 
 # The first two principal components are generated below on the non-standardized data
 pca2 = PCA(n_components=2)  # reduce from 64 to 2 dimensions
-pca_result2 = pca2.fit_transform(digits.data)
-# print ('Non-standardized PCA reduced data shape: ', pca_result2.shape)
+pca2_result = pca2.fit_transform(digits.data)
+
+# Principal components are assigned to the percnt variable below and PCA is done on the non-standardized data
+percnt = 0.50 # Input the percentage of variance (e.g., 0.50 would preserve 50% of the variance)
+pca3 = PCA(n_components=percnt).fit(digits.data) 
+pca3_result = pca3.transform(digits.data)
+# Transform the PCA reduced data back to its original space. This will help visualize how the image data appears following PCA reduction
+pca_inversed = pca3.inverse_transform(pca3_result)  # Use the inverse of the transform to reconstruct the reduced digits
+
+if percnt < 1:
+    percnt_var = round(int(percnt*100))
+    print ('{:0d}% of the variance is contained within {} principal components'.format(percnt_var, pca3.n_components_))
+
+print ('Explained variation per principal component: {}'.format(pca.explained_variance_ratio_)) # Percentage of variance explained by each dimension. Here, the n_components=2, as designated in the pca above, so two values are expected
+print ('The first two components account for {:.0f}% of the variation in the entire dataset'.format((pca.explained_variance_ratio_[0] + pca.explained_variance_ratio_[1])*100))
+# One can estimate how many components are needed to describe the data by assessing the 
+# cumulative explained variance ratio as a function of the number of components, see the plot below
+if 0:
+    pca4 = PCA().fit(digits.data)
+    plt.plot(np.cumsum(pca4.explained_variance_ratio_))
+    plt.xlabel('Number of components')
+    plt.ylabel('Cumulative explained variance')
+    plt.title('Number of components vs. retained variance')
+    plt.show() # About 90% of the variance is retained by using 20 components, but 75% is retained within 10 components
+    # plt.savefig('n_comp_var.png', dpi=150)  
+
+# #####################
+# Visualize results of PCA
 
 # Plot of PCA reduced data with a colorbar. This uses the standardized data
 if 0:
@@ -171,7 +191,7 @@ if 0:
 
 # Plot of PCA reduced data with a colorbar. This uses the original data, (i.e., this data is not standardized)
 if 1:
-    plt.scatter(pca_result2[:, 0], pca_result2[:, 1],
+    plt.scatter(pca2_result[:, 0], pca2_result[:, 1],
                 c=digits.target, edgecolor='none', alpha=0.5,
                 cmap=plt.cm.get_cmap('tab10', 10))
     plt.xlabel('Component 1')
@@ -179,17 +199,6 @@ if 1:
     plt.colorbar()
     plt.show() 
     # plt.savefig('pca_digits.png', dpi=150) 
-
-# The principal components are assigned to the percnt variable below and PCA is done on the non-standardized data
-percnt = 0.50 # Input the percentage of variance (e.g., 0.50 would be 50% of the variance)
-pca3 = PCA(n_components=percnt).fit(digits.data) # Preserving 50% of the variance by setting the number of components to 0.50 and using the unstandardized data (digits.data)
-pca3_result = pca3.transform(digits.data)
-# Transform the PCA reduced data back to its original space.
-inversed_pca = pca3.inverse_transform(pca3_result)  # Use the inverse of the transform to reconstruct the reduced digits
-
-if percnt < 1:
-    percnt_var = round(int(percnt*100))
-    print ('{:0d}% of the variance is contained within {} principal components'.format(percnt_var, pca3.n_components_))
 
 # Figure of original images, as assigned to the variable called inversed_lst
 inversed_lst = range(0, 10)
@@ -211,24 +220,13 @@ if 0:
     for i in inversed_lst:
         plt_index = plt_index + 1
         ax = fig.add_subplot(1, 10, plt_index)
-        ax.imshow(inversed_pca[i].reshape(8, 8), cmap=plt.cm.gray_r, interpolation='nearest')
+        ax.imshow(pca_inversed[i].reshape(8, 8), cmap=plt.cm.gray_r, interpolation='nearest')
     plt.tight_layout()
     plt.show() 
     # plt.savefig('digits0_9_pca.png', dpi=150) 
 
 # Figure of the above two plots combined into one in order to compare the original images vs corresponding PCA reduced images
 
-
- # One can estimate how many components are needed to describe the data by assesing the 
- # cumulative explained variance ratio as a function of the number of components
-if 0:
-    pca4 = PCA().fit(digits.data)
-    plt.plot(np.cumsum(pca4.explained_variance_ratio_))
-    plt.xlabel('Number of components')
-    plt.ylabel('Cumulative explained variance')
-    plt.title('Number of components vs. retained variance')
-    plt.show() # About 90% of the variance is retained by using 20 components, but 75% is retained with 10 components
-    # plt.savefig('n_comp_var.png', dpi=150)
 
 # #############################################################################
 # t-SNE reduced data
@@ -293,14 +291,14 @@ kmeans_metrics(KMeans(init='k-means++', n_clusters=n_clusters, n_init=10),
 kmeans_metrics(KMeans(init='random', n_clusters=n_clusters, n_init=10),
               name="random", data=data)
 
-# In this case the seeding of the centers is deterministic, thus the kmeans algorithm is run only once (n_init=1)
+# In this case the seeding of the centers is deterministic, thus the kmeans algorithm is run only once (i.e., n_init=1)
 pca = PCA(n_components=n_digits).fit(data)
 kmeans_metrics(KMeans(init=pca.components_, n_clusters=n_clusters, n_init=1),
               name="PCA-based",
               data=data)
+
 # #############################################################################
 # K-means clustering
-# assumption that clusters fall in convex globular clusters 
 
 def k_means_reduced(reduced_data, initialization, n_clusters, n_init):
     """
@@ -325,7 +323,7 @@ k_trunc_SVD = k_means_reduced(svd_result, 'k-means++', n_clusters, n_init)
 k_iso = k_means_reduced(iso_result, 'k-means++', n_clusters, n_init)
 
 # #####################
-# Visualize the results of K-means clustering
+# Visualize results of K-means clustering
 
 # Figure of PCA vs t-SNE reduced data and K-means clustering on both
 if 0: 
