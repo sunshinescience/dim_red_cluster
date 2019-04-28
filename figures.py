@@ -3,7 +3,12 @@ import matplotlib.pyplot as plt
 
 def plot_images(data, reshape=None, save_fname=None, show=False):
     """
-    Input reshape values as tuple of two numbers (e.g., (8, 8))
+    Provides a figure with eight images plotted.  
+    Parameters:
+        data: image data (e.g., digits.images)
+        reshape: Input reshape values as a tuple of two numbers (e.g., (8, 8)). 
+        save_fname: whether or not to save the file to a .png file
+        show: whether or not to show the figure
     """
     inversed_lst = range(0, 10)
     fig = plt.figure(figsize=(10,2))
