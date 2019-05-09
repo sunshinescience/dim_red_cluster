@@ -58,8 +58,8 @@ n_samples, n_features = data.shape
 n_digits = len(np.unique(digits.target))
 labels = digits.target
 
-dig = 1 # Digit number. Change this digit number (to a digit between 0 and 9) in order to get a list printed of the sample numbers that correspond to this specified digit
-# print ('Samples that are {}:'.format(dig), np.where(labels == dig)[0]) # Prints a list of sample numbers that are the specified digit
+dig = 0 # Digit number. Change this digit number (to a digit between 0 and 9) in order to get a list printed of the sample numbers that correspond to this specified digit
+# print ('The amount of samples that are {} is:'.format(dig), len((np.where(labels == dig)[0]).tolist())) # Prints a list of sample numbers that are the specified digit
 
 # ####################################################################################
 # Visualize the dataset 
@@ -235,8 +235,6 @@ if show_plots:
                     cmap=plt.cm.get_cmap('tab10', 10), marker='.')
     plt.tight_layout()
     plt.show()
-
-
 
 # Figure of multiple plots of different perplexities
 if show_plots:
@@ -554,8 +552,8 @@ cluster_digit_accuracy(k_t_sne.labels_, labels)
 
 # #############################################################################
 # Mean-shift clustering
-# We can use the estimate_bandwidth function to estimate a good bandwidth for the data
-bandwidth = round(estimate_bandwidth(data))
+ 
+bandwidth = round(estimate_bandwidth(data)) # We can use the estimate_bandwidth function to estimate a good bandwidth for the data
 
 mean_s = MeanShift(bandwidth=bandwidth)
 mean_s.fit(pca_result)
@@ -597,7 +595,6 @@ if show_plots:
 
 # #############################################################################
 # Spectral clustering
-# spectral clustering can ignore sparse interconnections between arbitrarily shaped clusters of data
 
 # sc_result = SpectralClustering(n_clusters=n_clusters, assign_labels="discretize").fit(data)
 sc = SpectralClustering(n_clusters=n_clusters, affinity='nearest_neighbors',
@@ -611,10 +608,6 @@ if show_plots:
 
 # #############################################################################
 # DBSCAN clustering
-# For some more information, see: https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html
-# See: http://abhijitannaldas.com/ml/dbscan-clustering-in-machine-learning.html
-# See: https://www.dummies.com/programming/big-data/data-science/how-to-create-an-unsupervised-learning-model-with-dbscan/
-# See: https://towardsdatascience.com/dbscan-clustering-for-data-shapes-k-means-cant-handle-well-in-python-6be89af4e6ea
 
 db = DBSCAN(eps=3, min_samples=2)
 db_tsne = db.fit(tsne_result)
