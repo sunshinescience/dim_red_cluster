@@ -429,40 +429,71 @@ if show_plots:
 # Visualize random digits from a select k-means cluster using t-SNE reduced data
 
 clust_num = 3 # The cluster number to select
-indexes = 8 # The number of plots to generate on the figure. 
-fig_size = (7,8)
 
 def cluster_indices(clust_num, labels_array): #numpy 
     """
     This takes parameters such as the cluster number (clust_num) and the labels of each data point.
-    This returns the indices of the cluster_num you provide.
+    This returns the indices of the cluster number you provide.
     """
     return np.where(labels_array == clust_num)[0]
 
 cluster_data = cluster_indices(clust_num, k_t_sne.labels_) # A list of sample numbers from the chosen cluster number
-cl_mode = statistics.mode(labels[cluster_data])
-dig_lst = np.where(digits.target == cl_mode)[0]
-# print (("where:"), np.where(k_t_sne.labels_ == 6)[0]) # This is telling us the sample number where the digit 6 is
 
-print ('Samples from cluster {}:'.format(clust_num), cluster_data)
-print ('Digits from cluster {}:'.format(clust_num), labels[cluster_data])
+# print ('Samples from cluster {}:'.format(clust_num), cluster_data) # This is a list of sample numbers of the chosen cluster
+# print ('Digits from cluster {}:'.format(clust_num), labels[cluster_data]) # This is a list of digits of the chosen cluster
+# print ('Mode of cluster: ', statistics.mode(labels[cluster_data])) # This is the digit that occurs most often in the chosen cluster
 
-cluster_data_random = []
-for i in range(indexes):
-    rand_num = np.random.choice(cluster_data)
-    cluster_data_random.append(rand_num)
-# Plot of random digits from a chosen cluster
+# digit_list = [0,10,20,30] # All zeroes
+digit_list = [1656,1657,1659,1662] # 5,7,5,9
+# digit_list = [1766, 1774, 1781, 1789] # 1,1,8,8
+def plot_four_select_images(digit_list, image_data):
+    """
+    digit_list: list of four sample numbers to plot
+    image_data: the image data, for example digits.images
+    """
+    fig = plt.figure(figsize=(8,2))
+    plt_index = 0
+    for i in digit_list:
+        plt_index = plt_index + 1
+        ax = fig.add_subplot(1, 4, plt_index)
+        ax.imshow(image_data[i], cmap=plt.cm.gray_r, interpolation='nearest')
+        ax.set_title('digit {}'.format(labels[i]))
+        ax.set_yticklabels([]) # Turn off y tick labels
+        ax.set_xticklabels([]) # Turn off x tick labels
+        ax.set_yticks([]) # Turn off y ticks
+        ax.set_xticks([]) # Turn off x ticks
+    plt.tight_layout()
+    plt.show()
+
 if show_plots:
-    fig = plt.figure(figsize=fig_size)
+    plot_four_select_images(digit_list, digits.images)
+
+def plot_random_cluster_digits(image_data, cluster_data, clust_num):
+    """
+    Plots eight random digits from a select cluster, as specified in clust_num
+    image_data: the image data, for example digits.images
+    cluster_data: a list of sample numbers from a select cluster 
+    clust_num: a chosen digit
+    """
+    indexes = 8 # The number of plots to generate on the figure
+    cluster_data_random = []
+    for i in range(indexes):
+        rand_num = np.random.choice(cluster_data)
+        cluster_data_random.append(rand_num)
+    # Plot of random digits from a chosen cluster
+    fig = plt.figure(figsize=(7,8))
     plt_index = 0
     for i in cluster_data_random:
         plt_index = plt_index + 1
         ax = fig.add_subplot((indexes-(indexes/2)), 2, plt_index)
-        ax.imshow(digits.images[i], cmap=plt.cm.gray_r, interpolation='nearest')
+        ax.imshow(image_data[i], cmap=plt.cm.gray_r, interpolation='nearest')
         fig.suptitle('Random digits from k-means cluster number {}'.format(clust_num), fontsize=14)
     plt.subplots_adjust(top=0.85)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.show()
+
+if show_plots:
+    plot_random_cluster_digits(digits.images, cluster_data)
 
 def digit_matches(cluster_data):
     """
@@ -480,31 +511,47 @@ def digit_matches(cluster_data):
     else:
         print ('The cluster digits are not all the same digit')
 
-# Print whether or not the chosen cluster has all one digit 
-digit_matches(cluster_data)
+# Print whether or not the chosen cluster is made up of entirely the same digit 
+# digit_matches(cluster_data)
 
 def where_not_equal(cluster_data, labels):
     """
     cluster_data are indices (of samples)
-    This takes a parameter of another function, the digit_matches function defined above. 
-    This returns the indices of the digits that do not match the mode digit within the chosen cluster."""
+    labels are the labels of the data
+    This returns the indices of the digits that do not match the mode digit within a chosen cluster."""
     cl_mode = statistics.mode(labels[cluster_data])
     return np.where(labels[cluster_data] != cl_mode)[0]
 
-print ('Where the digits are not equal list: ', len(where_not_equal(cluster_data, labels)))
-print ('Where the digits are not equal: ', where_not_equal(cluster_data, labels))
+# print ('Where the digits are not equal: ', where_not_equal(cluster_data, labels)) # Print the sample numbers for the digits that do not match the overall cluster digit (mode) for the specified cluster as chosen above in the variable called clust_num 
+# print ('Where the digits are not equal list: ', len(where_not_equal(cluster_data, labels))) # Print the amount of digits that do not match the overall cluster digit (mode) for the specified cluster as chosen above in the variable called clust_num 
 
-sampl_lst = []
-digit_lst = []
-wher_lst = []
-for i in range(10):
-    cl_num = i
-    cl_data = cluster_indices(cl_num, k_t_sne.labels_) 
-    sampl_lst.append(cl_data)
-    digit_lst.append(labels[cl_data])
-    not_equal = where_not_equal(cl_data, labels).tolist()
-    wher_lst.append(not_equal)
-print (wher_lst)
+# Obtaining information about how well the digits were clustered from k-means clustering:
+def cluster_digit_accuracy(labels_array, labels):
+    sampl_lst = []
+    digit_lst = []
+    wher_lst = []
+    wher_dict = {} # keys are digits, values are the sample numbers of digits that do not match the overall cluster digit (mode), for each cluster
+    len_dict = {} # keys are digits, values are the total amount of digits in the corresponding cluster
+    for i in range(10):
+        cl_num = i
+        cl_data = np.where(labels_array == cl_num)[0]
+        clust_mode = statistics.mode(labels[cl_data])
+        sampl_lst.append(cl_data)
+        digit_lst.append(labels[cl_data])
+        not_equal = (np.where(labels[cl_data] != clust_mode)[0]).tolist()
+        wher_dict[clust_mode] = not_equal
+        wher_lst.append(not_equal)
+        cl_len = len(labels[cl_data])
+        len_dict[i] = cl_len
+    print ('The overall digit of each cluster and the total amount of digits in each cluster are: ', len_dict)
+
+    non_match_dict = {}
+    for j in range(10):
+        non_match_dict[j] = len(wher_dict[j])
+    print ('The overall digit (mode) and the amount of digits that do not match the mode of each cluster are: ', non_match_dict) # Prints the digit number as the key and the corresponding value is the amount of wrong digits within that particular cluster. 
+
+cluster_digit_accuracy(k_t_sne.labels_, labels)
+
 # #############################################################################
 # Mean-shift clustering
 # We can use the estimate_bandwidth function to estimate a good bandwidth for the data
